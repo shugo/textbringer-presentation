@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module Textbringer
+  if Window.has_colors?
+    Face.define :presentation_title, foreground: "magenta",
+      bold: true, underline: true
+  end
+
   class PresentationMode < FundamentalMode
     define_generic_command :forward_slide
     define_generic_command :backward_slide
@@ -11,7 +16,7 @@ module Textbringer
     PRESENTATION_MODE_MAP.define_key(:left, :backward_slide_command)
     PRESENTATION_MODE_MAP.define_key("q", :quit_presentation_command)
 
-    define_syntax :keyword, /\A.*/
+    define_syntax :presentation_title, /\A.*/
 
     def initialize(buffer)
       super(buffer)
