@@ -25,11 +25,7 @@ module Textbringer
         @list.size
       end
 
-      def current_index
-        @index
-      end
-
-      def current_slide
+      def current
         @list[@index]
       end
 
