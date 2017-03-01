@@ -27,6 +27,7 @@ module Textbringer
     end
 
     def show_current_slide
+      Window.delete_other_windows
       Window.redraw
       @buffer.read_only = false
       begin
