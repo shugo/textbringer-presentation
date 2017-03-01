@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Textbringer
+  CONFIG[:presentation_image_background] = "black"
+
   if Window.has_colors?
     Face.define :presentation_title, foreground: "magenta",
       bold: true, underline: true
@@ -38,10 +40,7 @@ module Textbringer
           s = body.sub(img_re, "").strip
           @buffer.insert(s)
           if img
-            Window.redisplay
-            printf("\e[%d;0H", s.empty? ? 3 : s.count("\n") + 5)
-            print(`convert -resize 300x300 #{img} - | img2sixel`)
-            STDOUT.flush
+            show_image(img, s)
           end
         end
       ensure
@@ -62,6 +61,25 @@ module Textbringer
     def quit_presentation
       kill_buffer(@buffer)
       Window.redraw
+    end
+
+    private
+
+    def show_image(img, body)
+      Window.redisplay
+      wininfo = `xwininfo -id $WINDOWID`
+      width = wininfo.slice(/Width: (\d+)/, 1).to_i
+      height = wininfo.slice(/Height: (\d+)/, 1).to_i
+      lines = Window.lines
+      columns = Window.columns
+      y = body.empty? ? 3 : body.count("\n") + 5
+      img_width = width
+      img_height = height.to_f / lines * (lines - y - 2)
+      STDOUT.printf("\e[%d;0H", y)
+      img_size = "#{img_width}x#{img_height}"
+      img_bg = @buffer[:presentation_image_background]
+      STDOUT.print(`convert -resize #{img_size} -gravity center -background '#{img_bg}' -extent #{img_size} '#{img}' - | img2sixel`)
+      STDOUT.flush
     end
   end
 end
