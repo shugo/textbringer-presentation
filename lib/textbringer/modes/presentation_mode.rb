@@ -20,13 +20,24 @@ module Textbringer
     end
 
     def show_current_slide
+      Window.redraw
       @buffer.read_only = false
       begin
         @buffer.clear
         slide = buffer[:slide_list].current
         if slide
           @buffer.insert("#{slide.title}\n\n")
-          @buffer.insert(slide.body)
+          body = slide.body
+          img_re = /!\[.*?\]\((.*\.(?:jpg|png))\)/
+          img = body.slice(img_re, 1)
+          s = body.sub(img_re, "").strip
+          @buffer.insert(s)
+          if img
+            Window.redisplay
+            printf("\e[%d;0H", s.count("\n") + 5)
+            print(`convert -resize 300x300 #{img} - | img2sixel`)
+            STDOUT.flush
+          end
         end
       ensure
         @buffer.read_only = true
@@ -45,6 +56,7 @@ module Textbringer
 
     def quit_presentation
       kill_buffer(@buffer)
+      Window.redraw
     end
   end
 end
