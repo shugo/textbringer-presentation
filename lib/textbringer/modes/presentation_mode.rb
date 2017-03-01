@@ -34,7 +34,7 @@ module Textbringer
           @buffer.insert(s)
           if img
             Window.redisplay
-            printf("\e[%d;0H", s.count("\n") + 5)
+            printf("\e[%d;0H", s.empty? ? 3 : s.count("\n") + 5)
             print(`convert -resize 300x300 #{img} - | img2sixel`)
             STDOUT.flush
           end
