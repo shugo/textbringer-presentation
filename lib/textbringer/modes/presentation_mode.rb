@@ -44,10 +44,17 @@ module Textbringer
           body = slide.body
           img_re = /!\[.*?\]\((.*\.(?:jpg|png))\)/
           img = body.slice(img_re, 1)
-          s = body.sub(img_re, "").strip.gsub(/^/, left_margin)
+          code_re = /^```([a-z]+)?\n(.*?)^```$/m
+          lang, code = body.scan(code_re)[0]
+          s = body.sub(img_re, "").sub(code_re, "").strip.
+            gsub(/^/, left_margin)
           @buffer.insert(s)
+          beginning_of_buffer
           if img
             show_image(img, s)
+          end
+          if code
+            show_code(code, lang)
           end
         end
       ensure
@@ -66,6 +73,7 @@ module Textbringer
     end
 
     def quit_presentation
+      Window.delete_other_windows
       kill_buffer(@buffer)
       Window.redraw
     end
@@ -89,6 +97,24 @@ module Textbringer
       img_bg = @buffer[:presentation_image_background]
       STDOUT.print(`convert -resize #{img_size} -gravity center -background '#{img_bg}' -extent #{img_size} '#{img}' - | img2sixel`)
       STDOUT.flush
+    end
+
+    def show_code(code, lang)
+      Window.current.split
+      Window.current.shrink_if_larger_than_buffer
+      Window.other_window
+      buffer = Buffer.find_or_new("*Code*")
+      buffer.clear
+      switch_to_buffer(buffer)
+      if lang
+        send(lang.downcase + "_mode")
+      else
+        fundamental_mode
+      end
+      left_margin = " " * @buffer[:presentation_left_margin]
+      insert(code.gsub(/^/, left_margin))
+      beginning_of_buffer
+      Window.other_window
     end
   end
 end
