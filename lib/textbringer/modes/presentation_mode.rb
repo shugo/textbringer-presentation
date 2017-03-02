@@ -12,11 +12,13 @@ module Textbringer
     define_generic_command :forward_slide
     define_generic_command :backward_slide
     define_generic_command :quit_presentation
+    define_generic_command :show_current_slide
 
     PRESENTATION_MODE_MAP = Keymap.new
     PRESENTATION_MODE_MAP.define_key(:right, :forward_slide_command)
     PRESENTATION_MODE_MAP.define_key(:left, :backward_slide_command)
     PRESENTATION_MODE_MAP.define_key("q", :quit_presentation_command)
+    PRESENTATION_MODE_MAP.define_key("\C-l", :show_current_slide_command)
 
     define_syntax :presentation_title, /\A.*/
 
@@ -74,9 +76,10 @@ module Textbringer
       lines = Window.lines
       columns = Window.columns
       y = body.empty? ? 3 : body.count("\n") + 5
-      img_width = width
-      img_height = height.to_f / lines * (lines - y - 2)
-      STDOUT.printf("\e[%d;0H", y)
+      left_margin = 2
+      img_width = width * (columns - left_margin * 2) / columns
+      img_height = height * (lines - y - 2) / lines
+      STDOUT.printf("\e[%d;%dH", y, left_margin + 1)
       img_size = "#{img_width}x#{img_height}"
       img_bg = @buffer[:presentation_image_background]
       STDOUT.print(`convert -resize #{img_size} -gravity center -background '#{img_bg}' -extent #{img_size} '#{img}' - | img2sixel`)
