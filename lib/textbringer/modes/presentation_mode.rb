@@ -76,6 +76,10 @@ module Textbringer
 
     def quit_presentation
       Window.delete_other_windows
+      buffer = Buffer["*Code*"]
+      if buffer
+        buffer.kill
+      end
       kill_buffer(@buffer)
       Window.redraw
     end
