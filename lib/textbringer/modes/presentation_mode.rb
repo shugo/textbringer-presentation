@@ -22,7 +22,7 @@ module Textbringer
     PRESENTATION_MODE_MAP.define_key("q", :quit_presentation_command)
     PRESENTATION_MODE_MAP.define_key("\C-l", :show_current_slide_command)
 
-    define_syntax :presentation_title, /^ *#.*/
+    define_syntax :presentation_title, /\A\s*\S+/
 
     def initialize(buffer)
       super(buffer)
@@ -36,11 +36,12 @@ module Textbringer
       @buffer.read_only = false
       begin
         @buffer.clear
-        slide = buffer[:slide_list].current
+        slide_list = buffer[:slide_list]
+        slide = slide_list.current
         if slide
           @buffer.insert("\n" * @buffer[:presentation_top_margin])
           left_margin = " " * @buffer[:presentation_left_margin]
-          @buffer.insert("#{left_margin}\# #{slide.title}\n\n")
+          @buffer.insert("#{left_margin}#{slide.title}\n\n")
           body = slide.body
           img_re = /!\[.*?\]\((.*\.(?:jpg|png))\)/
           img = body.slice(img_re, 1)
@@ -56,6 +57,7 @@ module Textbringer
           if code
             show_code(code, lang)
           end
+          show_slide_number(slide_list)
         end
       ensure
         @buffer.read_only = true
@@ -115,6 +117,12 @@ module Textbringer
       insert(code.gsub(/^/, left_margin))
       beginning_of_buffer
       Window.other_window
+    end
+
+    def show_slide_number(slide_list)
+      slide = slide_list.current
+      msg = "#{slide.number}/#{slide_list.size}"
+      message(msg, log: false)
     end
   end
 end
