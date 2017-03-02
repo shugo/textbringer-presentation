@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 module Textbringer
+  CONFIG[:presentation_top_margin] = 1
+  CONFIG[:presentation_left_margin] = 2
+  CONFIG[:presentation_image_left_margin] = 2
   CONFIG[:presentation_image_background] = "black"
 
   if Window.has_colors?
-    Face.define :presentation_title, foreground: "magenta",
-      bold: true, underline: true
+    Face.define :presentation_title, foreground: "magenta", bold: true
   end
 
   class PresentationMode < FundamentalMode
@@ -20,7 +22,7 @@ module Textbringer
     PRESENTATION_MODE_MAP.define_key("q", :quit_presentation_command)
     PRESENTATION_MODE_MAP.define_key("\C-l", :show_current_slide_command)
 
-    define_syntax :presentation_title, /\A.*/
+    define_syntax :presentation_title, /^ *#.*/
 
     def initialize(buffer)
       super(buffer)
@@ -36,11 +38,13 @@ module Textbringer
         @buffer.clear
         slide = buffer[:slide_list].current
         if slide
-          @buffer.insert("#{slide.title}\n\n")
+          @buffer.insert("\n" * @buffer[:presentation_top_margin])
+          left_margin = " " * @buffer[:presentation_left_margin]
+          @buffer.insert("#{left_margin}\# #{slide.title}\n\n")
           body = slide.body
           img_re = /!\[.*?\]\((.*\.(?:jpg|png))\)/
           img = body.slice(img_re, 1)
-          s = body.sub(img_re, "").strip
+          s = body.sub(img_re, "").strip.gsub(/^/, left_margin)
           @buffer.insert(s)
           if img
             show_image(img, s)
@@ -75,8 +79,9 @@ module Textbringer
       height = wininfo.slice(/Height: (\d+)/, 1).to_i
       lines = Window.lines
       columns = Window.columns
-      y = body.empty? ? 3 : body.count("\n") + 5
-      left_margin = 2
+      y = @buffer[:presentation_top_margin] +
+        (/\A\s*\z/.match(body) ? 3 : body.count("\n") + 5)
+      left_margin = @buffer[:presentation_image_left_margin]
       img_width = width * (columns - left_margin * 2) / columns
       img_height = height * (lines - y - 2) / lines
       STDOUT.printf("\e[%d;%dH", y, left_margin + 1)
