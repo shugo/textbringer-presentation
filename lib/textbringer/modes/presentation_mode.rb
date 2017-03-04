@@ -23,6 +23,7 @@ module Textbringer
     PRESENTATION_MODE_MAP.define_key("\C-l", :show_current_slide_command)
 
     define_syntax :presentation_title, /\A\s*\S+/
+    define_syntax :keyword, /\*\*.*?\*\*/
 
     def initialize(buffer)
       super(buffer)
