@@ -5,6 +5,8 @@ module Textbringer
   CONFIG[:presentation_left_margin] = 2
   CONFIG[:presentation_image_left_margin] = 2
   CONFIG[:presentation_image_background] = "black"
+  CONFIG[:presentation_code_top_margin] = 1
+  CONFIG[:presentation_code_left_margin] = 2
 
   if Window.has_colors?
     Face.define :presentation_title, foreground: "magenta", bold: true
@@ -22,7 +24,7 @@ module Textbringer
     PRESENTATION_MODE_MAP.define_key("q", :quit_presentation_command)
     PRESENTATION_MODE_MAP.define_key("\C-l", :show_current_slide_command)
 
-    define_syntax :presentation_title, /\A\s*\S+/
+    define_syntax :presentation_title, /\A\s*.+/
     define_syntax :keyword, /\*\*.*?\*\*/
 
     def initialize(buffer)
@@ -118,7 +120,8 @@ module Textbringer
       else
         fundamental_mode
       end
-      left_margin = " " * @buffer[:presentation_left_margin]
+      insert("\n" * @buffer[:presentation_code_top_margin])
+      left_margin = " " * @buffer[:presentation_code_left_margin]
       insert(code.gsub(/^/, left_margin))
       beginning_of_buffer
       Window.other_window

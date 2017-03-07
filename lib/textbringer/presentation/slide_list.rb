@@ -14,7 +14,7 @@ module Textbringer
 
     class SlideList
       def initialize(s)
-        @list = s.scan(/^# *(.*?)\n(.*?)(?:(?=^#)|\z)/m).map.with_index {
+        @list = s.scan(/^#+ *(.*?)\n(.*?)(?:(?=^#)|\z)/m).map.with_index {
           |(title, body), i|
           Slide.new(i + 1, title.strip, body.strip)
         }
