@@ -26,6 +26,7 @@ module Textbringer
 
     define_syntax :presentation_title, /\A\s*.+/
     define_syntax :keyword, /\*\*.*?\*\*/
+    define_syntax :comment, /^[ \t]*>.*/
 
     def initialize(buffer)
       super(buffer)
