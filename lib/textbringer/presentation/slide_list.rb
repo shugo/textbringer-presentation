@@ -29,6 +29,13 @@ module Textbringer
         @list[@index]
       end
 
+      def goto_page(no)
+        if no < 1 || no > @list.size
+          raise ArgumentError, "Invalid page number: #{no}"
+        end
+        @index = no - 1
+      end
+
       def forward_slide
         if @index < @list.size - 1
           @index += 1
