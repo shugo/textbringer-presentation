@@ -29,6 +29,10 @@ module Textbringer
         @list[@index]
       end
 
+      def current_page
+        @index + 1
+      end
+
       def goto_page(no)
         if no < 1 || no > @list.size
           raise ArgumentError, "Invalid page number: #{no}"

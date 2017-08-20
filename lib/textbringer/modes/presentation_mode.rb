@@ -84,7 +84,18 @@ module Textbringer
       if buffer
         buffer.kill
       end
+      src_buffer = @buffer[:source_buffer]
+      page_no = @buffer[:slide_list].current_page
       kill_buffer(@buffer)
+      switch_to_buffer(src_buffer)
+      src_buffer.beginning_of_buffer
+      page_no.times do
+        unless src_buffer.re_search_forward(/^#/, raise_error: false)
+          break
+        end
+      end
+      src_buffer.beginning_of_line
+      Window.current.recenter
       Window.redraw
     end
 
