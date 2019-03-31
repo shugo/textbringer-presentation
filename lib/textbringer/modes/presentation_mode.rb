@@ -116,7 +116,8 @@ module Textbringer
       STDOUT.printf("\e[%d;%dH", y, left_margin + 1)
       img_size = "#{img_width}x#{img_height}"
       img_bg = @buffer[:presentation_image_background]
-      STDOUT.print(`convert -resize #{img_size} -gravity center -background '#{img_bg}' -extent #{img_size} '#{img}' - | img2sixel`)
+      options = CONFIG.fetch(:presentation_img2sixel_options, "")
+      STDOUT.print(`convert -resize #{img_size} -gravity center -background '#{img_bg}' -extent #{img_size} '#{img}' - | img2sixel #{options}`)
       STDOUT.flush
     end
 
