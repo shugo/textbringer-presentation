@@ -21,6 +21,8 @@ module Textbringer
     PRESENTATION_MODE_MAP = Keymap.new
     PRESENTATION_MODE_MAP.define_key(:right, :forward_slide_command)
     PRESENTATION_MODE_MAP.define_key(:left, :backward_slide_command)
+    PRESENTATION_MODE_MAP.define_key("j", :forward_slide_command)
+    PRESENTATION_MODE_MAP.define_key("k", :backward_slide_command)
     PRESENTATION_MODE_MAP.define_key("q", :quit_presentation_command)
     PRESENTATION_MODE_MAP.define_key("\C-l", :show_current_slide_command)
 
@@ -85,16 +87,10 @@ module Textbringer
         buffer.kill
       end
       src_buffer = @buffer[:source_buffer]
-      page_no = @buffer[:slide_list].current_page
+      pos = @buffer[:slide_list].current.start_pos
       kill_buffer(@buffer)
       switch_to_buffer(src_buffer)
-      src_buffer.beginning_of_buffer
-      page_no.times do
-        unless src_buffer.re_search_forward(/^#/, raise_error: false)
-          break
-        end
-      end
-      src_buffer.beginning_of_line
+      src_buffer.goto_char(pos)
       Window.current.recenter
       Window.redraw
     end
@@ -103,9 +99,13 @@ module Textbringer
 
     def show_image(img, body)
       Window.redisplay
-      wininfo = `xwininfo -id $WINDOWID`
-      width = wininfo.slice(/Width: (\d+)/, 1).to_i
-      height = wininfo.slice(/Height: (\d+)/, 1).to_i
+      width = CONFIG[:presentation_window_width]
+      height = CONFIG[:presentation_window_height]
+      if width.nil? || height.nil?
+        wininfo = `xwininfo -id $WINDOWID`
+        width = wininfo.slice(/Width: (\d+)/, 1).to_i
+        height = wininfo.slice(/Height: (\d+)/, 1).to_i
+      end
       lines = Window.lines
       columns = Window.columns
       y = @buffer[:presentation_top_margin] +
