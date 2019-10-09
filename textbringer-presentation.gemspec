@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "textbringer"
   spec.add_runtime_dependency "commonmarker"
 
-  spec.add_development_dependency "bundler", "~> 1.14"
+  spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "test-unit"
   spec.add_development_dependency "simplecov"
