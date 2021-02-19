@@ -53,8 +53,9 @@ module Textbringer
           img = body.slice(img_re, 1)
           code_re = /^```([a-z]+)?\n(.*?)^```$/m
           lang, code = body.scan(code_re)[0]
-          s = body.sub(img_re, "").sub(code_re, "").strip.
-            gsub(/^/, left_margin)
+          s = body.sub(img_re, "").sub(code_re, "").
+            gsub(/\[(.*?)\]\(https?:.*?\)/, '\1').
+            strip.gsub(/^/, left_margin)
           @buffer.insert(s)
           beginning_of_buffer
           if img
