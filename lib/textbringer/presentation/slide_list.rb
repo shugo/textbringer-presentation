@@ -24,17 +24,17 @@ module Textbringer
     class SlideList
       def initialize(buffer)
         @buffer = buffer
-        doc = CommonMarker.render_doc(buffer.to_s)
+        doc = Commonmarker.parse(@buffer.to_s)
         @list = []
         slide = nil
         i = 1
         @buffer.save_excursion do
           doc.each do |node|
-            if node.type == :header
-              @buffer.goto_line(node.sourcepos[:start_line])
+            if node.type == :heading
+              @buffer.goto_line(node.source_position[:start_line])
               slide.end_pos = @buffer.point - 1 if slide
-              title = node.to_plaintext.strip
-              slide = Slide.new(buffer, i, title)
+              title = node.map { |c| c.string_content }.join.strip
+              slide = Slide.new(@buffer, i, title)
               slide.start_pos = @buffer.point
               @list.push(slide)
               i += 1
