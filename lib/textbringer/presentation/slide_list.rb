@@ -27,7 +27,7 @@ module Textbringer
         i = 1
         @buffer.save_excursion do
           @buffer.beginning_of_buffer
-          while @buffer.re_search_forward(/^(?:#+[ \t]*([^\r\n]*)|```.*```)/m,
+          while @buffer.re_search_forward(/^(?:#+[ \t]*([^\r\n]*)|```.*?```)/m,
                                           raise_error: false)
             title = match_string(1)
             if title
