@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "commonmarker"
-
 module Textbringer
   module Presentation
     class Slide
@@ -24,20 +22,22 @@ module Textbringer
     class SlideList
       def initialize(buffer)
         @buffer = buffer
-        doc = Commonmarker.parse(@buffer.to_s)
         @list = []
         slide = nil
         i = 1
         @buffer.save_excursion do
-          doc.each do |node|
-            if node.type == :heading
-              @buffer.goto_line(node.source_position[:start_line])
+          @buffer.beginning_of_buffer
+          while @buffer.re_search_forward(/^(?:#+[ \t]*([^\r\n]*)|```.*```)/m,
+                                          raise_error: false)
+            title = match_string(1)
+            if title
+              @buffer.beginning_of_line
               slide.end_pos = @buffer.point - 1 if slide
-              title = node.map { |c| c.string_content }.join.strip
-              slide = Slide.new(@buffer, i, title)
+              slide = Slide.new(@buffer, i, title.strip)
               slide.start_pos = @buffer.point
               @list.push(slide)
               i += 1
+              @buffer.forward_line
             end
           end
           slide.end_pos = @buffer.point_max if slide
