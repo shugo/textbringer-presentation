@@ -112,13 +112,19 @@ module Textbringer
       y = @buffer[:presentation_top_margin] +
         (/\A\s*\z/.match(body) ? 3 : body.count("\n") + 5)
       left_margin = @buffer[:presentation_image_left_margin]
-      img_width = width * (columns - left_margin * 2) / columns
-      img_height = height * (lines - y - 2) / lines
-      STDOUT.printf("\e[%d;%dH", y, left_margin + 1)
-      img_size = "#{img_width}x#{img_height}"
+      if width > 0 && height > 0
+        img_width = width * (columns - left_margin * 2) / columns
+        img_height = height * (lines - y - 2) / lines
+        STDOUT.printf("\e[%d;%dH", y, left_margin + 1)
+        img_size="#{img_width}x#{img_height}"
+        resize_option = "-resize #{img_size} -extent #{img_size}"
+      else
+        STDOUT.printf("\e[%d;%dH", y, 1)
+        resize_option = ""
+      end
       img_bg = @buffer[:presentation_image_background]
       options = CONFIG.fetch(:presentation_img2sixel_options, "")
-      STDOUT.print(`convert -resize #{img_size} -gravity center -background '#{img_bg}' -extent #{img_size} '#{img}' - | img2sixel #{options} 2> /dev/null`)
+      STDOUT.print(`convert #{resize_option} -gravity center -background '#{img_bg}' '#{img}' - | img2sixel #{options} 2> /dev/null`)
       STDOUT.flush
     end
 
