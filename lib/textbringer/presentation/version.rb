@@ -2,6 +2,6 @@
 
 module Textbringer
   module Presentation
-    VERSION = "3"
+    VERSION = "4"
   end
 end
