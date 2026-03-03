@@ -103,9 +103,7 @@ module Textbringer
       width = CONFIG[:presentation_window_width]
       height = CONFIG[:presentation_window_height]
       if width.nil? || height.nil?
-        wininfo = `xwininfo -id $WINDOWID`
-        width = wininfo.slice(/Width: (\d+)/, 1).to_i
-        height = wininfo.slice(/Height: (\d+)/, 1).to_i
+        width, height = terminal_window_size
       end
       lines = Window.lines
       columns = Window.columns
@@ -126,6 +124,20 @@ module Textbringer
       options = CONFIG.fetch(:presentation_img2sixel_options, "")
       STDOUT.print(`convert #{resize_option} -gravity center -background '#{img_bg}' '#{img}' - | img2sixel #{options} 2> /dev/null`)
       STDOUT.flush
+    end
+
+    TIOCGWINSZ = 0x5413
+
+    def terminal_window_size
+      buffer = [0, 0, 0, 0].pack('SSSS')
+  
+      if STDOUT.ioctl(TIOCGWINSZ, buffer) >= 0
+        rows, cols, xpixel, ypixel = buffer.unpack('SSSS')
+        return xpixel, ypixel if xpixel > 0
+      end
+      nil
+    rescue
+      nil
     end
 
     def show_code(code, lang)
