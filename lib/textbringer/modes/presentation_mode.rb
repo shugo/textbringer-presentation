@@ -110,7 +110,7 @@ module Textbringer
       y = @buffer[:presentation_top_margin] +
         (/\A\s*\z/.match(body) ? 3 : body.count("\n") + 5)
       left_margin = @buffer[:presentation_image_left_margin]
-      if width > 0 && height > 0
+      if width && height
         img_width = width * (columns - left_margin * 2) / columns
         img_height = height * (lines - y - 2) / lines
         STDOUT.printf("\e[%d;%dH", y, left_margin + 1)
